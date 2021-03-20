@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows.Data;
-using DiscordChatExporter.Core.Exporting;
+using DiscordChatExporter.Domain.Exporting;
 
 namespace DiscordChatExporter.Gui.Converters
 {
     [ValueConversion(typeof(ExportFormat), typeof(string))]
     public class ExportFormatToStringConverter : IValueConverter
     {
-        public static ExportFormatToStringConverter Instance { get; } = new();
+        public static ExportFormatToStringConverter Instance { get; } = new ExportFormatToStringConverter();
 
         public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

@@ -1,5 +1,5 @@
-﻿using DiscordChatExporter.Core.Discord;
-using DiscordChatExporter.Core.Exporting;
+﻿using DiscordChatExporter.Domain.Discord;
+using DiscordChatExporter.Domain.Exporting;
 using Tyrrrz.Settings;
 
 namespace DiscordChatExporter.Gui.Services

@@ -1,4 +1,4 @@
-﻿using DiscordChatExporter.Core.Discord.Data;
+﻿using DiscordChatExporter.Domain.Discord.Models;
 
 namespace DiscordChatExporter.Gui.Behaviors
 {

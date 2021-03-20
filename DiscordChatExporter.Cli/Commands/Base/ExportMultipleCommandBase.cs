@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using CliFx;
 using CliFx.Attributes;
 using CliFx.Utilities;
-using DiscordChatExporter.Core.Discord.Data;
-using DiscordChatExporter.Core.Exceptions;
-using DiscordChatExporter.Core.Exporting;
-using DiscordChatExporter.Core.Utils.Extensions;
+using DiscordChatExporter.Domain.Discord.Models;
+using DiscordChatExporter.Domain.Exceptions;
+using DiscordChatExporter.Domain.Exporting;
+using DiscordChatExporter.Domain.Utilities;
 using Gress;
 using Tyrrrz.Extensions;
 
@@ -17,24 +17,22 @@ namespace DiscordChatExporter.Cli.Commands.Base
 {
     public abstract class ExportMultipleCommandBase : ExportCommandBase
     {
-        [CommandOption("parallel", Description = "Limits how many channels can be exported in parallel.")]
-        public int ParallelLimit { get; init; } = 1;
+        [CommandOption("parallel",
+            Description = "Limits how many channels can be exported in parallel.")]
+        public int ParallelLimit { get; set; } = 1;
 
         protected async ValueTask ExportMultipleAsync(IConsole console, IReadOnlyList<Channel> channels)
         {
             // This uses a different route from ExportCommandBase.ExportAsync() because it runs
             // in parallel and needs another way to report progress to console.
 
-            await console.Output.WriteAsync(
-                $"Exporting {channels.Count} channels... "
-            );
-
+            console.Output.Write($"Exporting {channels.Count} channels... ");
             var progress = console.CreateProgressTicker();
 
             var operations = progress.Wrap().CreateOperations(channels.Count);
 
             var successfulExportCount = 0;
-            var errors = new ConcurrentBag<(Channel, string)>();
+            var errors = new ConcurrentBag<string>();
 
             await channels.Zip(operations).ParallelForEachAsync(async tuple =>
             {
@@ -42,7 +40,7 @@ namespace DiscordChatExporter.Cli.Commands.Base
 
                 try
                 {
-                    var guild = await Discord.GetGuildAsync(channel.GuildId);
+                    var guild = await GetDiscordClient().GetGuildAsync(channel.GuildId);
 
                     var request = new ExportRequest(
                         guild,
@@ -57,13 +55,13 @@ namespace DiscordChatExporter.Cli.Commands.Base
                         DateFormat
                     );
 
-                    await Exporter.ExportChannelAsync(request, operation);
+                    await GetChannelExporter().ExportChannelAsync(request, operation);
 
                     Interlocked.Increment(ref successfulExportCount);
                 }
                 catch (DiscordChatExporterException ex) when (!ex.IsCritical)
                 {
-                    errors.Add((channel, ex.Message));
+                    errors.Add(ex.Message);
                 }
                 finally
                 {
@@ -71,12 +69,12 @@ namespace DiscordChatExporter.Cli.Commands.Base
                 }
             }, ParallelLimit.ClampMin(1));
 
-            await console.Output.WriteLineAsync();
+            console.Output.WriteLine();
 
-            foreach (var (channel, error) in errors)
-                await console.Error.WriteLineAsync($"Channel '{channel}': {error}");
+            foreach (var error in errors)
+                console.Error.WriteLine(error);
 
-            await console.Output.WriteLineAsync($"Successfully exported {successfulExportCount} channel(s).");
+            console.Output.WriteLine($"Successfully exported {successfulExportCount} channel(s).");
         }
     }
 }

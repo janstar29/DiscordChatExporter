@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using CliFx;
 using CliFx.Attributes;
 using DiscordChatExporter.Cli.Commands.Base;
-using DiscordChatExporter.Core.Discord.Data;
-using DiscordChatExporter.Core.Utils.Extensions;
+using DiscordChatExporter.Domain.Discord.Models;
+using DiscordChatExporter.Domain.Utilities;
 
 namespace DiscordChatExporter.Cli.Commands
 {
@@ -13,14 +13,10 @@ namespace DiscordChatExporter.Cli.Commands
     {
         public override async ValueTask ExecuteAsync(IConsole console)
         {
-            var channels = await Discord.GetGuildChannelsAsync(Guild.DirectMessages.Id);
+            var channels = await GetDiscordClient().GetGuildChannelsAsync(Guild.DirectMessages.Id);
 
-            foreach (var channel in channels.OrderBy(c => c.Name))
-            {
-                await console.Output.WriteLineAsync(
-                    $"{channel.Id} | {channel.Category} / {channel.Name}"
-                );
-            }
+            foreach (var channel in channels.OrderBy(c => c.Category).ThenBy(c => c.Name))
+                console.Output.WriteLine($"{channel.Id} | {channel.Category} / {channel.Name}");
         }
     }
 }

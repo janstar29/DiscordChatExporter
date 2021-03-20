@@ -27,10 +27,10 @@
     <Window.Resources>
         <CollectionViewSource x:Key="AvailableChannelsViewSource" Source="{Binding AvailableChannels, Mode=OneWay}">
             <CollectionViewSource.GroupDescriptions>
-                <PropertyGroupDescription PropertyName="Category.Name" />
+                <PropertyGroupDescription PropertyName="Category" />
             </CollectionViewSource.GroupDescriptions>
             <CollectionViewSource.SortDescriptions>
-                <componentModel:SortDescription Direction="Ascending" PropertyName="Position" />
+                <componentModel:SortDescription Direction="Ascending" PropertyName="Category" />
                 <componentModel:SortDescription Direction="Ascending" PropertyName="Name" />
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>

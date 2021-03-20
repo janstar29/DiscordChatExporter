@@ -1,27 +1,30 @@
 ﻿using System.Threading.Tasks;
 using CliFx;
 using CliFx.Attributes;
-using DiscordChatExporter.Core.Discord;
+using DiscordChatExporter.Domain.Discord;
 
 namespace DiscordChatExporter.Cli.Commands.Base
 {
     public abstract class TokenCommandBase : ICommand
     {
-        [CommandOption("token", 't', IsRequired = true, EnvironmentVariableName = "DISCORD_TOKEN", Description = "Authentication token.")]
-        public string TokenValue { get; init; } = "";
+        [CommandOption("token", 't', IsRequired = true,
+            EnvironmentVariableName = "DISCORD_TOKEN",
+            Description = "Authorization token.")]
+        public string TokenValue { get; set; } = "";
 
-        [CommandOption("bot", 'b', EnvironmentVariableName = "DISCORD_TOKEN_BOT", Description = "Authenticate as a bot.")]
-        public bool IsBotToken { get; init; }
+        [CommandOption("bot", 'b',
+            EnvironmentVariableName = "DISCORD_TOKEN_BOT",
+            Description = "Authorize as a bot.")]
+        public bool IsBotToken { get; set; }
 
-        private AuthToken GetAuthToken() => new(
+        protected AuthToken GetAuthToken() => new AuthToken(
             IsBotToken
                 ? AuthTokenType.Bot
                 : AuthTokenType.User,
             TokenValue
         );
 
-        private DiscordClient? _discordClient;
-        protected DiscordClient Discord => _discordClient ??= new DiscordClient(GetAuthToken());
+        protected DiscordClient GetDiscordClient() => new DiscordClient(GetAuthToken());
 
         public abstract ValueTask ExecuteAsync(IConsole console);
     }

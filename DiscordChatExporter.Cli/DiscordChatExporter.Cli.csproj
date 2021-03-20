@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DiscordChatExporter.Core\DiscordChatExporter.Core.csproj" />
+    <ProjectReference Include="..\DiscordChatExporter.Domain\DiscordChatExporter.Domain.csproj" />
   </ItemGroup>
 
 </Project>
